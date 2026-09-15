@@ -6,10 +6,9 @@ import os
 from datetime import date
 from PIL import Image, ImageDraw, ImageFont
 
-PATH_MJS = "images/photosmjs/"
-FONT_SUB = ImageFont.truetype("segoeui.ttf", size=100)      
-FONT_MVP = ImageFont.truetype("fonts/Anton-Regular.ttf", size=240) 
-SUBTEXT_COLOR = (100, 200, 100, 255)
+PATH_MJS = "images/photosmjs/" 
+FONT_MVP = ImageFont.truetype("fonts/Anton-Regular.ttf", size=620) 
+SUBTEXT_COLOR = (100, 200, 250, 150)
 
 def load_img(path:str)-> Image:
     return Image.open( path ).convert("RGBA")
@@ -19,14 +18,19 @@ class LambeauxMaker:
         imgMVP = self.load_MVP(nomMVP)
         self.mvp = nomMVP
 
-        winlooseIMG = self.load_MainText(victoire)
-        textcolor = (0, 255, 0, 255) if victoire else (255, 0, 0, 255)
-        ScoreText = f"\ {scoreEq1} - {scoreEq2} /"
+        winlooseIMG = self.load_MainText(victoire) 
+        ScoreText = f"{scoreEq1}-{scoreEq2}"
         background = self.load_Background()
 
-        self.merge(background, imgMVP, winlooseIMG ,ScoreText, textcolor)
+        self.merge(background, imgMVP, winlooseIMG ,ScoreText)
 
-    def merge(self, backgroundIMG:Image, profileIMG:Image, mainTextIMG:Image, subText:str, text_color:tuple):
+    def merge(self, backgroundIMG:Image, profileIMG:Image, mainTextIMG:Image, subText:str):
+        pos_x = backgroundIMG.size[0]//32
+        pos_y = backgroundIMG.size[1]//8
+        draw = ImageDraw.Draw(backgroundIMG) 
+        draw.text( (pos_x,pos_y) , subText, fill=SUBTEXT_COLOR, font=FONT_MVP, stroke_width=4,stroke_fill=SUBTEXT_COLOR)
+
+
         pos_x = backgroundIMG.size[0]//2 - profileIMG.size[0]//2
         pos_y = backgroundIMG.size[1]//2 - profileIMG.size[1]//2
         backgroundIMG.paste(profileIMG, (pos_x,pos_y) , profileIMG) 
@@ -34,10 +38,7 @@ class LambeauxMaker:
         pos_x = backgroundIMG.size[0]//2 - mainTextIMG.size[0]//2
         pos_y = int(backgroundIMG.size[1]*1.05)- mainTextIMG.size[1]
         backgroundIMG.paste(mainTextIMG, (pos_x,pos_y) , mainTextIMG)  
-        draw = ImageDraw.Draw(backgroundIMG)
-
-        pos_y //= 4
-        draw.text( (pos_x,pos_y) , subText, fill=SUBTEXT_COLOR, font=FONT_SUB)   
+        
 
         #sauvegarde
         backgroundIMG.convert("RGB").save(f"images/creations/{date.today()}=={self.mvp}==.jpg") 
