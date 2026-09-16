@@ -4,7 +4,7 @@ de base le placeholder c'est who is he??
 """
 import os 
 from datetime import date
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 PATH_MJS = "images/photosmjs/" 
 FONT_MVP = ImageFont.truetype("fonts/Anton-Regular.ttf", size=620) 
@@ -28,8 +28,14 @@ class LambeauxMaker:
         pos_x = backgroundIMG.size[0]//32
         pos_y = backgroundIMG.size[1]//8
         draw = ImageDraw.Draw(backgroundIMG) 
-        draw.text( (pos_x,pos_y) , subText, fill=SUBTEXT_COLOR, font=FONT_MVP, stroke_width=4,stroke_fill=SUBTEXT_COLOR)
 
+        subtxtIMG = Image.new('RGBA', backgroundIMG.size, (255,255,255,0))
+        d = ImageDraw.Draw(subtxtIMG)
+        d.text( (pos_x,pos_y) , subText, fill=SUBTEXT_COLOR, font=FONT_MVP, stroke_width=4,stroke_fill=SUBTEXT_COLOR)
+        blurred_subtext = subtxtIMG.filter(ImageFilter.GaussianBlur(radius=16))
+
+        backgroundIMG =  Image.alpha_composite(backgroundIMG,blurred_subtext)
+        backgroundIMG =  Image.alpha_composite(backgroundIMG,subtxtIMG)
 
         pos_x = backgroundIMG.size[0]//2 - profileIMG.size[0]//2
         pos_y = backgroundIMG.size[1]//2 - profileIMG.size[1]//2
